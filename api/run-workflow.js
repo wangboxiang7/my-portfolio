@@ -79,29 +79,68 @@ module.exports = async function handler(req, res) {
     const resumeFileId = await uploadFile(resumeBase64, resumeName || 'resume.pdf', 'application/pdf');
     const jdFileId = await uploadFile(jdBase64, jdName || 'jd.jpg', 'image/jpeg');
 
+    console.log('Uploaded files - resume ID:', resumeFileId, 'jd ID:', jdFileId);
+
+    // 根据文档：文件参数需要字符串化的 JSON，格式："{\"file_id\":\"...\"}"
+    // ⚠️ 重要：参数名（file, jd）必须与你的 workflow 定义中的参数名完全一致
+    // 请在你的 workflow 编排页面确认参数名
+    const workflowBody = {
+      workflow_id: workflowId,
+      parameters: {
+        // 如果 workflow 参数名是 "file" 或 "resume"
+        file: JSON.stringify({ file_id: resumeFileId }),
+        // 如果 workflow 参数名是 "jd" 或 "job_description" 或 "jd_image"
+        jd: JSON.stringify({ file_id: jdFileId }),
+        // content 参数（如果 workflow 需要）
+        content: content || '生成简历与 JD 的匹配度分析报告'
+      }
+    };
+    
+    console.log('Workflow request body:', JSON.stringify(workflowBody, null, 2));
+
     const wfResp = await fetch('https://api.coze.cn/open_api/v2/workflow/run', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        // 注意：文档要求 Bearer 开头，所以这里要拼凑一下
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({
-        workflow_id: workflowId,
-        parameters: {
-          file: JSON.stringify({ file_id: resumeFileId }),
-          jd: JSON.stringify({ file_id: jdFileId }),
-          content: content || '生成简历与 JD 的匹配度分析报告'
-        }
-      })
+      body: JSON.stringify(workflowBody)
     });
 
-    const wfData = await wfResp.json().catch(() => ({}));
-    if (!wfResp.ok) {
-      return res.status(wfResp.status).json({ error: wfData?.msg || 'Workflow call failed', debug_url: wfData?.debug_url });
+    // 先获取响应文本，确保能看到完整错误
+    const responseText = await wfResp.text();
+    console.log('Workflow response status:', wfResp.status);
+    console.log('Workflow response:', responseText);
+
+    let wfData;
+    try {
+      wfData = JSON.parse(responseText);
+    } catch (e) {
+      console.error('Failed to parse workflow response:', e);
+      return res.status(500).json({ 
+        error: 'Invalid JSON response from workflow API',
+        rawResponse: responseText.substring(0, 500)
+      });
+    }
+    
+    if (!wfResp.ok || wfData?.code !== 0) {
+      console.error('Workflow API error:', {
+        status: wfResp.status,
+        code: wfData?.code,
+        msg: wfData?.msg,
+        debug_url: wfData?.debug_url,
+        fullResponse: wfData
+      });
+      return res.status(wfResp.status || 500).json({ 
+        error: wfData?.msg || 'Workflow call failed',
+        code: wfData?.code,
+        debug_url: wfData?.debug_url,
+        fullResponse: wfData
+      });
     }
 
     const output = wfData?.data?.output_text || wfData?.data?.output || JSON.stringify(wfData?.data || {});
+    console.log('Workflow success, output:', output);
     return res.status(200).json({ output });
   } catch (err) {
     console.error('run-workflow error', err);
