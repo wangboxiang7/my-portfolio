@@ -27,27 +27,48 @@
     <section id="home" class="relative min-h-screen flex items-center justify-center px-6 pt-24">
       <canvas id="particles" class="absolute inset-0 -z-10"></canvas>
       <div class="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-slate-950/60 to-slate-950"></div>
-      <div class="max-w-4xl text-center space-y-6 relative">
+      <div class="glow-grid"></div>
+      <div class="orb orb-emerald"></div>
+      <div class="orb orb-cyan"></div>
+      <div class="max-w-5xl text-center space-y-8 relative">
         <p class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs uppercase tracking-[0.2em]">
           <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_0_6px_rgba(16,185,129,0.25)]"></span>
           <span>Content Safety · Risk Strategy · Data Analytics</span>
         </p>
-        <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight text-white drop-shadow-lg">
-          Boxiang Wang（王柏翔）
-        </h1>
-        <p class="text-lg sm:text-xl text-slate-200 max-w-2xl mx-auto">
-          内容安全 / 风控策略 / 数据分析 —— 擅长从实际业务问题中拆解流程与策略，用数据与规则推动系统效率提升。
-        </p>
-        <div class="flex items-center justify-center space-x-4">
+        <div class="space-y-4">
+          <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight text-white drop-shadow-lg">
+            Boxiang Wang（王柏翔）
+          </h1>
+          <p class="text-lg sm:text-xl text-slate-200 max-w-3xl mx-auto">
+            内容安全 / 风控策略 / 数据分析 —— 擅长从实际业务问题中拆解流程与策略，用数据与规则推动系统效率提升。
+          </p>
+        </div>
+        <div class="flex items-center justify-center flex-wrap gap-4">
           <a href="#projects" class="btn-primary">查看经历</a>
           <a href="#about" class="btn-ghost">一句话优势</a>
+          <span class="badge-soft">Coze Workflow · 自动化评估</span>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-3 text-left">
+          <div class="glass-panel accent-border p-4">
+            <p class="text-sm text-slate-300">内容安全 / 风控</p>
+            <p class="text-xl font-semibold text-white">全链路策略设计</p>
+          </div>
+          <div class="glass-panel accent-border p-4">
+            <p class="text-sm text-slate-300">多模态审核</p>
+            <p class="text-xl font-semibold text-white">模型评估 + 规则覆盖</p>
+          </div>
+          <div class="glass-panel accent-border p-4">
+            <p class="text-sm text-slate-300">数据分析</p>
+            <p class="text-xl font-semibold text-white">AB Test / 指标诊断</p>
+          </div>
         </div>
       </div>
     </section>
 
-    <section id="about" class="py-24 px-6 bg-gradient-to-b from-slate-950 to-slate-900">
-      <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-        <div class="overflow-hidden rounded-3xl shadow-2xl border border-white/5">
+    <section id="about" class="py-24 px-6 bg-gradient-to-b from-slate-950 to-slate-900 relative overflow-hidden">
+      <div class="glow-grid"></div>
+      <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center relative">
+        <div class="overflow-hidden rounded-3xl shadow-2xl border border-white/5 accent-border">
           <img src="assets/profile.png" alt="王柏翔头像" class="w-full h-full object-cover transition duration-700 hover:scale-105" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80';">
         </div>
         <div class="space-y-6">

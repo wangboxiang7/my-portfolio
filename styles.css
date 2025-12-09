@@ -9,6 +9,41 @@ body {
               #0b1220;
 }
 
+.glow-grid {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 120px 120px;
+  mask-image: radial-gradient(circle at center, rgba(255, 255, 255, 0.7), transparent 70%);
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.orb {
+  position: absolute;
+  width: 360px;
+  height: 360px;
+  border-radius: 9999px;
+  filter: blur(90px);
+  opacity: 0.25;
+}
+
+.orb-emerald {
+  background: #10b981;
+  top: 10%;
+  left: 12%;
+  animation: float 12s ease-in-out infinite;
+}
+
+.orb-cyan {
+  background: #22d3ee;
+  bottom: 12%;
+  right: 8%;
+  animation: float 14s ease-in-out infinite reverse;
+}
+
 .glass-nav {
   background: rgba(13, 17, 23, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -61,6 +96,17 @@ body {
   transform: translateY(-2px);
   border-color: rgba(255, 255, 255, 0.2);
   color: #22d3ee;
+}
+
+.badge-soft {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.85rem;
+  border-radius: 9999px;
+  background: linear-gradient(120deg, rgba(34, 211, 238, 0.12), rgba(16, 185, 129, 0.08));
+  color: #d1fae5;
+  border: 1px solid rgba(34, 211, 238, 0.25);
+  font-size: 0.82rem;
 }
 
 .pill {
@@ -117,6 +163,26 @@ body {
   backdrop-filter: blur(16px);
 }
 
+.accent-border {
+  position: relative;
+}
+
+.accent-border::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(120deg, rgba(34, 211, 238, 0.35), rgba(16, 185, 129, 0.35), rgba(14, 165, 233, 0.35));
+  opacity: 0;
+  transition: opacity 200ms ease;
+  z-index: -1;
+}
+
+.accent-border:hover::after {
+  opacity: 1;
+  filter: blur(6px);
+}
+
 .file-input {
   width: 100%;
   padding: 0.85rem 1rem;
@@ -149,5 +215,11 @@ body {
   background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.04), transparent 25%),
               radial-gradient(circle at 70% 10%, rgba(34, 211, 238, 0.05), transparent 22%),
               #0f172a;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-16px) scale(1.03); }
+  100% { transform: translateY(0px) scale(1); }
 }
 
