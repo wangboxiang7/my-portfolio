@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boxiang Wang | 王柏翔</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-slate-950 text-slate-100 font-[Inter] antialiased">
+  <header class="fixed top-0 w-full z-40">
+    <nav class="glass-nav mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
+      <div class="text-lg font-semibold tracking-tight">Boxiang Wang · 王柏翔</div>
+      <ul class="flex items-center space-x-6 text-sm font-medium">
+        <li><a href="#home" class="nav-link">Home</a></li>
+        <li><a href="#about" class="nav-link">About</a></li>
+        <li><a href="#projects" class="nav-link">Projects</a></li>
+        <li><a href="#contact" class="nav-link">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="overflow-x-hidden">
+    <section id="home" class="relative min-h-screen flex items-center justify-center px-6 pt-24">
+      <canvas id="particles" class="absolute inset-0 -z-10"></canvas>
+      <div class="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-slate-950/60 to-slate-950"></div>
+      <div class="max-w-4xl text-center space-y-6 relative">
+        <p class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs uppercase tracking-[0.2em]">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_0_6px_rgba(16,185,129,0.25)]"></span>
+          <span>Content Safety · Risk Strategy · Data Analytics</span>
+        </p>
+        <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight text-white drop-shadow-lg">
+          Boxiang Wang（王柏翔）
+        </h1>
+        <p class="text-lg sm:text-xl text-slate-200 max-w-2xl mx-auto">
+          内容安全 / 风控策略 / 数据分析 —— 擅长从实际业务问题中拆解流程与策略，用数据与规则推动系统效率提升。
+        </p>
+        <div class="flex items-center justify-center space-x-4">
+          <a href="#projects" class="btn-primary">查看经历</a>
+          <a href="#about" class="btn-ghost">一句话优势</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="py-24 px-6 bg-gradient-to-b from-slate-950 to-slate-900">
+      <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+        <div class="overflow-hidden rounded-3xl shadow-2xl border border-white/5">
+          <img src="assets/profile.png" alt="王柏翔头像" class="w-full h-full object-cover transition duration-700 hover:scale-105" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80';">
+        </div>
+        <div class="space-y-6">
+          <p class="text-sm font-semibold text-emerald-400 tracking-[0.2em] uppercase">关于我</p>
+          <h2 class="text-3xl md:text-4xl font-bold text-white">一句话优势</h2>
+          <p class="text-slate-300 leading-relaxed">
+            理解业务链路、对准核心指标、能把复杂问题拆成可执行方案。
+          </p>
+          <p class="text-slate-300 leading-relaxed">
+            擅长内容安全 / 风控策略 / 数据分析，能够把策略、规则与数据监控串联起来，既关注风险覆盖也关注成本效率。
+          </p>
+          <div class="flex flex-wrap gap-3">
+            <span class="pill">内容安全 / 风控策略</span>
+            <span class="pill">多模态模型评估协作</span>
+            <span class="pill">风险标签与审核分层</span>
+            <span class="pill">反外挂规则建设</span>
+            <span class="pill">举报数据分析</span>
+            <span class="pill">AB Test 设计与验收</span>
+            <span class="pill">Python · SQL · Hive · Spark 基础</span>
+            <span class="pill">Tableau / Excel</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="projects" class="py-24 px-6 bg-slate-950">
+      <div class="max-w-6xl mx-auto space-y-12">
+        <div class="space-y-3">
+          <p class="text-sm font-semibold text-emerald-400 tracking-[0.2em] uppercase">核心经历</p>
+          <h2 class="text-3xl md:text-4xl font-bold text-white">精选案例</h2>
+          <p class="text-slate-300 max-w-3xl">围绕内容安全、风控与数据分析的代表性经历与策略落地，展示拆解问题与推动上线的能力。</p>
+        </div>
+        <div class="grid gap-8 md:grid-cols-3">
+          <article class="project-card">
+            <div class="project-image">
+              <img src="assets/freefire.png" alt="Garena Free Fire" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=800&q=80';">
+            </div>
+            <div class="space-y-3">
+              <h3 class="text-xl font-semibold text-white">Garena（Free Fire）— 反外挂策略 / 安全运营</h3>
+              <p class="text-slate-300 text-sm">负责反外挂样本验证、策略上线与效果监控；多模态模型评估迭代；基于高频举报补充规则，构建外挂知识库，监控误杀/漏杀并优化阈值。</p>
+            </div>
+          </article>
+          <article class="project-card">
+            <div class="project-image">
+              <img src="assets/xiaohongshu.png" alt="小红书" onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/1/1c/Xiaohongshu_logo.svg';">
+            </div>
+            <div class="space-y-3">
+              <h3 class="text-xl font-semibold text-white">小红书 — 内容安全策略 / 机审链路优化</h3>
+              <p class="text-slate-300 text-sm">拆解审核瓶颈，设计“风险 + 价值”分层策略；人审率下降 10%；构建审核队列与策略粒度看板，参与多模态模型评估与规则覆盖验证。</p>
+            </div>
+          </article>
+          <article class="project-card">
+            <div class="project-image">
+              <img src="assets/didi.png" alt="滴滴出行" onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/DiDi_Chuxing_logo.svg/512px-DiDi_Chuxing_logo.svg.png';">
+            </div>
+            <div class="space-y-3">
+              <h3 class="text-xl font-semibold text-white">滴滴国际化 — 数据分析 / 运营策略</h3>
+              <p class="text-slate-300 text-sm">参与补贴策略 AB Test 的设计与验收；监测链路异常并修复；构建业务看板，分析留存与效率，支撑精细化补贴方案。</p>
+            </div>
+          </article>
+        </div>
+        <div class="bg-white/5 border border-white/10 rounded-2xl p-6 text-slate-200 space-y-2">
+          <p class="font-semibold text-white">更多经历</p>
+          <p class="text-sm text-slate-300">百观科技 — 与爬虫工程师协作构建电商数仓，负责数据清洗、字段对齐与特征整理，使用 Spark / Hive 维护日常任务。</p>
+          <p class="font-semibold text-white pt-3">Notes / Learning</p>
+          <p class="text-sm text-slate-300">内容安全链路分层方法；多模态模型评估与审核成本平衡；举报数据分析与异常定位；反外挂行为模式推理；策略类岗位 AB Test 方法论。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="py-20 px-6 bg-gradient-to-b from-slate-950 to-slate-900">
+        <div class="max-w-4xl mx-auto text-center space-y-6">
+        <h2 class="text-3xl md:text-4xl font-bold text-white">保持联系</h2>
+        <p class="text-slate-300 max-w-2xl mx-auto">内容安全 / 风控策略 / 数据分析相关合作或交流，欢迎联系。</p>
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+          <a href="mailto:wangboxiang7@gmail.com" class="btn-primary">邮箱：wangboxiang7@gmail.com</a>
+          <a href="#home" class="btn-ghost">返回顶部</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="workflow" class="py-24 px-6 bg-slate-900/80 border-t border-white/5">
+      <div class="max-w-6xl mx-auto space-y-10">
+        <div class="space-y-3 text-center">
+          <p class="text-sm font-semibold text-emerald-400 tracking-[0.2em] uppercase">AI 工作流</p>
+          <h2 class="text-3xl md:text-4xl font-bold text-white">分析简历 × JD 匹配度</h2>
+          <p class="text-slate-300 max-w-3xl mx-auto">上传简历 PDF 与 JD 截图，后端完成解析、OCR、调用 Coze Workflow，并将报告直接返回前端展示。</p>
+        </div>
+        <div class="glass-panel p-8 space-y-6">
+          <form id="workflow-form" class="grid md:grid-cols-2 gap-6 items-start">
+            <div class="space-y-2">
+              <label class="block text-sm text-slate-200 font-semibold">简历（PDF）</label>
+              <input id="resume" name="resume" type="file" accept="application/pdf" required class="file-input">
+            </div>
+            <div class="space-y-2">
+              <label class="block text-sm text-slate-200 font-semibold">JD 截图（png/jpg/jpeg）</label>
+              <input id="jd" name="jd" type="file" accept="image/*" required class="file-input">
+            </div>
+            <div class="md:col-span-2 flex items-center gap-3">
+              <button id="run-btn" type="submit" class="btn-primary">Run Analysis</button>
+              <span id="loading" class="text-sm text-emerald-300 hidden">Processing...</span>
+            </div>
+          </form>
+          <div class="space-y-3">
+            <p class="text-sm font-semibold text-slate-200">Result</p>
+            <pre id="result" class="result-box" style="white-space:pre-wrap; font-size:14px;">等待运行...</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="py-6 px-6 bg-slate-950/90 border-t border-white/5 text-center text-sm text-slate-400">
+    Crafted by Boxiang Wang · Inspired by clarity & impact
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
