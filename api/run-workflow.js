@@ -1,7 +1,7 @@
 // Vercel Serverless API Route: /api/run-workflow
 // Receives base64 PDF (resume) and image (jd), uploads to Coze File API, triggers workflow, returns output.
 
-module.exports.config = {
+export const config = {
   api: {
     bodyParser: {
       sizeLimit: '10mb'
@@ -48,7 +48,7 @@ async function uploadToCoze(buffer, filename, mime) {
   return fileId;
 }
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return error(res, 405, 'Method Not Allowed');
   }

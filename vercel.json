@@ -1,6 +1,7 @@
 {
+  "version": 3,
   "routes": [
-    { "src": "/api/run-workflow", "dest": "/api/run-workflow.js" }
+    { "src": "/api/(.*)", "dest": "/api/$1" }
   ]
 }
 
