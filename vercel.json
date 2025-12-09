@@ -2,6 +2,7 @@
   "version": 2,
   "builds": [
     { "src": "api/run-workflow.js", "use": "@vercel/node" },
+    { "src": "api/check-status.js", "use": "@vercel/node" },
     { "src": "index.html", "use": "@vercel/static" },
     { "src": "styles.css", "use": "@vercel/static" },
     { "src": "script.js", "use": "@vercel/static" },
@@ -9,6 +10,7 @@
   ],
   "routes": [
     { "src": "/api/run-workflow", "dest": "/api/run-workflow.js" },
+    { "src": "/api/check-status", "dest": "/api/check-status.js" },
     { "src": "/script.js", "dest": "/script.js" },
     { "src": "/styles.css", "dest": "/styles.css" },
     { "src": "/assets/(.*)", "dest": "/assets/$1" },

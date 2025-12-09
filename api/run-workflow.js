@@ -101,14 +101,13 @@ module.exports = async function handler(req, res) {
 
       console.log('Workflow response:', JSON.stringify(wfData, null, 2));
       
-      // 立即返回 execute_id，不等待 workflow 完成
-      // 因为 workflow 可能需要很长时间（超过 Vercel 的 60 秒限制）
+      // 异步：立即返回执行 ID，前端轮询 /api/check-status
       if (wfData?.code === 0) {
         return res.status(200).json({
+          status: 'Started',
           execute_id: wfData?.execute_id,
           debug_url: wfData?.debug_url,
-          message: 'Workflow 已启动，正在处理中...',
-          note: '由于处理时间较长，请通过 debug_url 查看进度，或稍后刷新页面查看结果'
+          message: 'Workflow 已启动，正在处理中...'
         });
       } else {
         return res.status(500).json({

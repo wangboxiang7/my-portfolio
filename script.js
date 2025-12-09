@@ -147,7 +147,43 @@ if (form && runBtn && loading && result) {
       }
       
       const data = await resp.json();
-      result.textContent = data.output || data.error || 'No output.';
+      
+      // 异步模式：收到 execute_id 后轮询
+      if (data.execute_id) {
+        result.textContent = `任务已启动，执行ID: ${data.execute_id}\n${data.message || ''}`;
+        if (data.debug_url) {
+          result.innerHTML += `<br><a href="${data.debug_url}" target="_blank" class="text-emerald-400 underline">查看调试链接</a>`;
+        }
+
+        const poll = async () => {
+          try {
+            const statusResp = await fetch(`/api/check-status?id=${encodeURIComponent(data.execute_id)}`);
+            const statusData = await statusResp.json();
+            if (statusData.status === 'Running') {
+              result.textContent = `任务执行中... (ID: ${data.execute_id})`;
+              setTimeout(poll, 3000);
+            } else if (statusData.status === 'Success') {
+              result.textContent = statusData.output || 'No output.';
+              if (statusData.debug_url) {
+                result.innerHTML += `<br><a href="${statusData.debug_url}" target="_blank" class="text-emerald-400 underline">查看调试链接</a>`;
+              }
+            } else {
+              result.textContent = statusData.error || 'Workflow 执行失败';
+              if (statusData.debug_url) {
+                result.innerHTML += `<br><a href="${statusData.debug_url}" target="_blank" class="text-emerald-400 underline">查看调试链接</a>`;
+              }
+            }
+          } catch (e) {
+            console.error(e);
+            result.textContent = '状态查询失败，请稍后重试。';
+          }
+        };
+
+        setTimeout(poll, 3000);
+      } else {
+        // 兼容旧同步模式
+        result.textContent = data.output || data.error || 'No output.';
+      }
     } catch (err) {
       console.error(err);
       result.textContent = '请求失败，请稍后重试。';
