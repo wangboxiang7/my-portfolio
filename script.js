@@ -90,3 +90,61 @@ document.querySelectorAll('a[href^="#"]').forEach(link => {
 
 init();
 
+// AI Workflow front-end handler (talks to serverless API)
+const form = document.getElementById('workflow-form');
+const runBtn = document.getElementById('run-btn');
+const loading = document.getElementById('loading');
+const result = document.getElementById('result');
+
+async function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+if (form && runBtn && loading && result) {
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const resumeFile = document.getElementById('resume')?.files?.[0];
+    const jdFile = document.getElementById('jd')?.files?.[0];
+    if (!resumeFile || !jdFile) {
+      result.textContent = '请上传简历 PDF 与 JD 截图。';
+      return;
+    }
+
+    const [resumeBase64, jdBase64] = await Promise.all([
+      fileToBase64(resumeFile),
+      fileToBase64(jdFile)
+    ]);
+
+    runBtn.disabled = true;
+    loading.classList.remove('hidden');
+    result.textContent = '运行中，请稍候...';
+
+    try {
+      const resp = await fetch('/api/run-workflow', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          resumeBase64,
+          resumeName: resumeFile.name,
+          jdBase64,
+          jdName: jdFile.name,
+          content: '请生成简历与 JD 的匹配度分析报告'
+        })
+      });
+      const data = await resp.json();
+      result.textContent = data.output || data.error || 'No output.';
+    } catch (err) {
+      console.error(err);
+      result.textContent = '请求失败，请稍后重试。';
+    } finally {
+      runBtn.disabled = false;
+      loading.classList.add('hidden');
+      result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+}

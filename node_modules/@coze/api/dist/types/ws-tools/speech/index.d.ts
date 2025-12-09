@@ -1,0 +1,45 @@
+import { type WsSpeechClientOptions } from '../types';
+import { type CreateSpeechWsReq, type CreateSpeechWsRes, type WebSocketAPI } from '../..';
+declare class WsSpeechClient {
+    ws: WebSocketAPI<CreateSpeechWsReq, CreateSpeechWsRes> | null;
+    private listeners;
+    private wavStreamPlayer;
+    private trackId;
+    private api;
+    private totalDuration;
+    private playbackStartTime;
+    private playbackPauseTime;
+    private playbackTimeout;
+    private elapsedBeforePause;
+    private audioDeltaList;
+    private config;
+    constructor(config: WsSpeechClientOptions);
+    init(): Promise<WebSocketAPI<CreateSpeechWsReq, CreateSpeechWsRes>>;
+    connect({ voiceId, speechRate, }?: {
+        /**音色ID */
+        voiceId?: string;
+        /**输出音频的语速，取值范围 [-50, 100]，默认为 0。-50 表示 0.5 倍速，100 表示 2 倍速。 */
+        speechRate?: number;
+    }): Promise<void>;
+    disconnect(): Promise<void>;
+    /**
+     * Releases wavStreamPlayer resources so callers can dispose the instance.
+     * In a mobile browser environment, if the WsSpeechClient is instantiated multiple times,
+     * you can additionally call the destroyPlayer method to release resources and prevent issues with speech playback.
+     */
+    destroyPlayer(): Promise<void>;
+    append(message: string): void;
+    complete(): void;
+    appendAndComplete(message: string): void;
+    interrupt(): Promise<void>;
+    pause(): Promise<void>;
+    resume(): Promise<void>;
+    togglePlay(): Promise<void>;
+    isPlaying(): boolean;
+    on(event: string, callback: (data: CreateSpeechWsRes | undefined) => void): void;
+    off(event: string, callback: (data: CreateSpeechWsRes | undefined) => void): void;
+    private closeWs;
+    private emit;
+    private handleAudioMessage;
+}
+export default WsSpeechClient;

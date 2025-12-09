@@ -1,12 +1,14 @@
 {
   "version": 2,
   "builds": [
+    { "src": "api/run-workflow.js", "use": "@vercel/node" },
     { "src": "index.html", "use": "@vercel/static" },
     { "src": "styles.css", "use": "@vercel/static" },
     { "src": "script.js", "use": "@vercel/static" },
     { "src": "assets/**/*", "use": "@vercel/static" }
   ],
   "routes": [
+    { "src": "/api/run-workflow", "dest": "/api/run-workflow.js" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
