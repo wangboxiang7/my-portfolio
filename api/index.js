@@ -1,22 +1,13 @@
-// Vercel Serverless API Route: /api/run-workflow
-// Receives base64 PDF (resume) and image (jd), uploads to Coze File API, triggers workflow, returns output.
-
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: '10mb'
-    }
-  }
-};
+// Express app adapted for Vercel Serverless: no app.listen, export app.
+const express = require('express');
 
 const COZE_API_KEY = process.env.COZE_API_KEY || '';
 const COZE_WORKFLOW_ID = process.env.COZE_WORKFLOW_ID || '';
 const COZE_FILE_UPLOAD_URL = 'https://api.coze.cn/open_api/v2/file/upload';
 const COZE_WORKFLOW_URL = 'https://api.coze.cn/open_api/v2/workflow/run';
 
-function error(res, status, message) {
-  return res.status(status).json({ error: message });
-}
+const app = express();
+app.use(express.json({ limit: '10mb' }));
 
 function normalizeBase64(data) {
   if (!data) return '';
@@ -32,12 +23,9 @@ async function uploadToCoze(buffer, filename, mime) {
 
   const resp = await fetch(COZE_FILE_UPLOAD_URL, {
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${COZE_API_KEY}`
-    },
+    headers: { Authorization: `Bearer ${COZE_API_KEY}` },
     body: formData
   });
-
   if (!resp.ok) {
     const text = await resp.text();
     throw new Error(`Coze file upload failed: ${resp.status} ${text}`);
@@ -48,18 +36,14 @@ async function uploadToCoze(buffer, filename, mime) {
   return fileId;
 }
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return error(res, 405, 'Method Not Allowed');
-  }
+app.post('/run-workflow', async (req, res) => {
   if (!COZE_API_KEY || !COZE_WORKFLOW_ID) {
-    return error(res, 500, 'Missing COZE_API_KEY or COZE_WORKFLOW_ID');
+    return res.status(500).json({ error: 'Missing COZE_API_KEY or COZE_WORKFLOW_ID' });
   }
-
   try {
     const { resumeBase64, resumeName, jdBase64, jdName } = req.body || {};
     if (!resumeBase64 || !jdBase64) {
-      return error(res, 400, 'resumeBase64 and jdBase64 are required');
+      return res.status(400).json({ error: 'resumeBase64 and jdBase64 are required' });
     }
 
     const resumeBuffer = Buffer.from(normalizeBase64(resumeBase64), 'base64');
@@ -86,14 +70,17 @@ export default async function handler(req, res) {
 
     const wfData = await wfResp.json().catch(() => ({}));
     if (!wfResp.ok) {
-      return error(res, wfResp.status, wfData?.msg || 'Workflow call failed');
+      return res.status(wfResp.status).json({ error: wfData?.msg || 'Workflow call failed', debug_url: wfData?.debug_url });
     }
-
     const output = wfData?.data?.output_text || wfData?.data?.output || JSON.stringify(wfData?.data || {});
     return res.status(200).json({ output });
   } catch (err) {
     console.error('run-workflow error', err);
-    return error(res, 500, err?.message || 'Internal Server Error');
+    return res.status(500).json({ error: err?.message || 'Internal Server Error' });
   }
-}
+});
+
+// Export app for Vercel
+module.exports = app;
+
 
