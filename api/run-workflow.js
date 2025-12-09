@@ -6,10 +6,11 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const COZE_API_TOKEN = process.env.COZE_API_TOKEN || '';
-  const COZE_WORKFLOW_ID = process.env.COZE_WORKFLOW_ID || '';
+  // 代码里的名字必须和 Vercel 里的 Key 完全一致
+  const token = process.env.COZE_API_TOKEN;
+  const workflowId = process.env.COZE_WORKFLOW_ID;
 
-  if (!COZE_API_TOKEN || !COZE_WORKFLOW_ID) {
+  if (!token || !workflowId) {
     return res.status(500).json({ error: 'Missing COZE_API_TOKEN or COZE_WORKFLOW_ID' });
   }
 
@@ -46,7 +47,8 @@ module.exports = async function handler(req, res) {
       const resp = await fetch('https://api.coze.cn/v1/files/upload', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${COZE_API_TOKEN}`,
+          // 注意：文档要求 Bearer 开头，所以这里要拼凑一下
+          'Authorization': `Bearer ${token}`,
           'Content-Type': `multipart/form-data; boundary=${boundary}`
         },
         body: body
@@ -68,10 +70,11 @@ module.exports = async function handler(req, res) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${COZE_API_TOKEN}`
+        // 注意：文档要求 Bearer 开头，所以这里要拼凑一下
+        'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify({
-        workflow_id: COZE_WORKFLOW_ID,
+        workflow_id: workflowId,
         parameters: {
           file: JSON.stringify({ file_id: resumeFileId }),
           jd: JSON.stringify({ file_id: jdFileId }),
