@@ -101,14 +101,42 @@ module.exports = async function handler(req, res) {
 
       console.log('Workflow response:', JSON.stringify(wfData, null, 2));
       
-      // 异步：立即返回执行 ID，前端轮询 /api/check-status
+      // 检查 workflow 是否已经完成（有 data 字段且不为空）
       if (wfData?.code === 0) {
-        return res.status(200).json({
-          status: 'Started',
-          execute_id: wfData?.execute_id,
-          debug_url: wfData?.debug_url,
-          message: 'Workflow 已启动，正在处理中...'
-        });
+        const hasCompletedData = wfData?.data && typeof wfData.data === 'string' && wfData.data.trim() !== '';
+        
+        if (hasCompletedData) {
+          // 如果 workflow 已经完成，解析并返回结果
+          try {
+            const parsedData = JSON.parse(wfData.data);
+            // 提取实际输出：parsedData.data 是最终内容
+            const output = parsedData?.data || wfData.data;
+            console.log('Workflow completed immediately, returning output');
+            return res.status(200).json({
+              status: 'Success',
+              output: output,
+              execute_id: wfData?.execute_id,
+              debug_url: wfData?.debug_url
+            });
+          } catch (parseErr) {
+            // 解析失败，仍返回 execute_id 让前端轮询
+            console.warn('Failed to parse immediate result, falling back to polling:', parseErr);
+            return res.status(200).json({
+              status: 'Started',
+              execute_id: wfData?.execute_id,
+              debug_url: wfData?.debug_url,
+              message: 'Workflow 已启动，正在处理中...'
+            });
+          }
+        } else {
+          // 如果 workflow 还在运行（没有 data 或 data 为空），返回 execute_id 让前端轮询
+          return res.status(200).json({
+            status: 'Started',
+            execute_id: wfData?.execute_id,
+            debug_url: wfData?.debug_url,
+            message: 'Workflow 已启动，正在处理中...'
+          });
+        }
       } else {
         return res.status(500).json({
           error: wfData?.msg || 'Workflow execution failed',

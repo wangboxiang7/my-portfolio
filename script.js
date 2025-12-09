@@ -148,8 +148,15 @@ if (form && runBtn && loading && result) {
       
       const data = await resp.json();
       
-      // 异步模式：收到 execute_id 后轮询
-      if (data.execute_id) {
+      // 处理两种情况：1) 立即完成（有 output），2) 需要轮询（有 execute_id）
+      if (data.status === 'Success' && data.output) {
+        // Workflow 立即完成，直接显示结果
+        result.textContent = data.output;
+        if (data.debug_url) {
+          result.innerHTML += `<br><a href="${data.debug_url}" target="_blank" class="text-emerald-400 underline">查看调试链接</a>`;
+        }
+      } else if (data.execute_id) {
+        // 需要轮询
         result.textContent = `任务已启动，执行ID: ${data.execute_id}\n${data.message || ''}`;
         if (data.debug_url) {
           result.innerHTML += `<br><a href="${data.debug_url}" target="_blank" class="text-emerald-400 underline">查看调试链接</a>`;
@@ -181,7 +188,7 @@ if (form && runBtn && loading && result) {
 
         setTimeout(poll, 3000);
       } else {
-        // 兼容旧同步模式
+        // 兼容旧同步模式或其他格式
         result.textContent = data.output || data.error || 'No output.';
       }
     } catch (err) {
