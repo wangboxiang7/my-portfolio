@@ -101,11 +101,33 @@ module.exports = async function handler(req, res) {
 
       console.log('Workflow response:', JSON.stringify(wfData, null, 2));
       
-      // SDK 返回的 wfData.data 是字符串类型，直接使用
-      const output = typeof wfData?.data === 'string' 
-        ? wfData.data 
-        : (wfData?.data ? JSON.stringify(wfData.data) : '');
-      return res.status(200).json({ output });
+      // 检查 workflow 执行是否成功
+      if (wfData?.code === 0 && wfData?.data) {
+        try {
+          // wfData.data 是一个 JSON 字符串，需要解析
+          const parsedData = JSON.parse(wfData.data);
+          // 从解析后的对象中提取 data 字段，这就是实际的分析结果
+          const output = parsedData.data || wfData.data;
+          console.log('Workflow output:', output);
+          return res.status(200).json({ output });
+        } catch (parseErr) {
+          // 如果解析失败，使用原始字符串
+          console.warn('Failed to parse workflow data, using raw string:', parseErr);
+          return res.status(200).json({ output: wfData.data });
+        }
+      } else {
+        // workflow 执行失败
+        console.error('Workflow execution failed:', {
+          code: wfData?.code,
+          msg: wfData?.msg,
+          debug_url: wfData?.debug_url
+        });
+        return res.status(500).json({
+          error: wfData?.msg || 'Workflow execution failed',
+          code: wfData?.code,
+          debug_url: wfData?.debug_url
+        });
+      }
     } catch (err) {
       console.error('Workflow API error:', err);
       return res.status(500).json({
