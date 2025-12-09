@@ -36,9 +36,11 @@ module.exports = async function handler(req, res) {
         Buffer.from(`Content-Disposition: form-data; name="file"; filename="${filename || 'upload.bin'}"\r\n`, 'utf8'),
         Buffer.from(`Content-Type: ${mime}\r\n\r\n`, 'utf8'),
         buffer,
-        Buffer.from(`\r\n--${boundary}\r\n`, 'utf8'),
-        Buffer.from('Content-Disposition: form-data; name="usage"\r\n\r\n', 'utf8'),
-        Buffer.from('workflow', 'utf8'),
+        // 注意：文档中没有提到 usage 参数，如果 workflow 需要，可能需要单独设置
+        // 先注释掉，如果 API 报错再添加回来
+        // Buffer.from(`\r\n--${boundary}\r\n`, 'utf8'),
+        // Buffer.from('Content-Disposition: form-data; name="usage"\r\n\r\n', 'utf8'),
+        // Buffer.from('workflow', 'utf8'),
         Buffer.from(`\r\n--${boundary}--\r\n`, 'utf8')
       ];
       
@@ -53,13 +55,24 @@ module.exports = async function handler(req, res) {
         },
         body: body
       });
+      
       if (!resp.ok) {
         const text = await resp.text();
+        console.error(`Upload failed (${resp.status}):`, text);
         throw new Error(`Upload failed: ${resp.status} ${text}`);
       }
+      
       const data = await resp.json();
-      const fileId = data?.data?.file_id;
-      if (!fileId) throw new Error('Upload missing file_id');
+      
+      // 🔍 根据文档，响应格式是：{ code: 0, data: { id: "...", ... }, msg: "" }
+      // 所以应该使用 data.data.id 而不是 data.data.file_id
+      const fileId = data?.data?.id;
+      
+      if (!fileId) {
+        console.error('Upload response missing id. Full response:', JSON.stringify(data, null, 2));
+        throw new Error(`Upload missing id. Response: ${JSON.stringify(data)}`);
+      }
+      
       return fileId;
     };
 
