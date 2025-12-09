@@ -109,17 +109,47 @@ module.exports = async function handler(req, res) {
 
     // 先获取响应文本，确保能看到完整错误
     const responseText = await wfResp.text();
+    const contentType = wfResp.headers.get('content-type') || 'unknown';
+    
     console.log('Workflow response status:', wfResp.status);
-    console.log('Workflow response:', responseText);
+    console.log('Workflow response Content-Type:', contentType);
+    console.log('Workflow response length:', responseText.length);
+    console.log('Workflow response (first 1000 chars):', responseText.substring(0, 1000));
+
+    // 检查响应类型
+    if (!contentType.includes('application/json')) {
+      console.error('Response is not JSON. Content-Type:', contentType);
+      return res.status(500).json({
+        error: 'Workflow API returned non-JSON response',
+        status: wfResp.status,
+        contentType: contentType,
+        rawResponse: responseText.substring(0, 1000),
+        isHtml: responseText.trim().startsWith('<')
+      });
+    }
+
+    // 检查响应是否为空
+    if (!responseText || responseText.trim().length === 0) {
+      console.error('Empty response from workflow API');
+      return res.status(500).json({
+        error: 'Empty response from workflow API',
+        status: wfResp.status
+      });
+    }
 
     let wfData;
     try {
       wfData = JSON.parse(responseText);
     } catch (e) {
-      console.error('Failed to parse workflow response:', e);
+      console.error('Failed to parse workflow response:', e.message);
+      console.error('Response text:', responseText);
       return res.status(500).json({ 
         error: 'Invalid JSON response from workflow API',
-        rawResponse: responseText.substring(0, 500)
+        parseError: e.message,
+        status: wfResp.status,
+        contentType: contentType,
+        rawResponse: responseText.substring(0, 1000),
+        responseLength: responseText.length
       });
     }
     
