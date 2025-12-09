@@ -1,6 +1,8 @@
 // Vercel Serverless API: /api/run-workflow
 // Upload resume (PDF) and JD (image) to Coze via /v1/files/upload, then run workflow.
 
+const { CozeAPI } = require('@coze/api');
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
@@ -81,97 +83,36 @@ module.exports = async function handler(req, res) {
 
     console.log('Uploaded files - resume ID:', resumeFileId, 'jd ID:', jdFileId);
 
-    // 根据文档：文件参数需要字符串化的 JSON，格式："{\"file_id\":\"...\"}"
-    // ⚠️ 重要：参数名（file, jd）必须与你的 workflow 定义中的参数名完全一致
-    // 请在你的 workflow 编排页面确认参数名
-    const workflowBody = {
-      workflow_id: workflowId,
-      parameters: {
-        // 如果 workflow 参数名是 "file" 或 "resume"
-        file: JSON.stringify({ file_id: resumeFileId }),
-        // 如果 workflow 参数名是 "jd" 或 "job_description" 或 "jd_image"
-        jd: JSON.stringify({ file_id: jdFileId }),
-        // content 参数（如果 workflow 需要）
-        content: content || '生成简历与 JD 的匹配度分析报告'
-      }
-    };
-    
-    console.log('Workflow request body:', JSON.stringify(workflowBody, null, 2));
-
-    const wfResp = await fetch('https://api.coze.cn/open_api/v2/workflow/run', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(workflowBody)
+    // 使用 @coze/api SDK
+    const apiClient = new CozeAPI({
+      token: token,
+      baseURL: 'https://api.coze.cn'
     });
 
-    // 先获取响应文本，确保能看到完整错误
-    const responseText = await wfResp.text();
-    const contentType = wfResp.headers.get('content-type') || 'unknown';
-    
-    console.log('Workflow response status:', wfResp.status);
-    console.log('Workflow response Content-Type:', contentType);
-    console.log('Workflow response length:', responseText.length);
-    console.log('Workflow response (first 1000 chars):', responseText.substring(0, 1000));
-
-    // 检查响应类型
-    if (!contentType.includes('application/json')) {
-      console.error('Response is not JSON. Content-Type:', contentType);
-      return res.status(500).json({
-        error: 'Workflow API returned non-JSON response',
-        status: wfResp.status,
-        contentType: contentType,
-        rawResponse: responseText.substring(0, 1000),
-        isHtml: responseText.trim().startsWith('<')
-      });
-    }
-
-    // 检查响应是否为空
-    if (!responseText || responseText.trim().length === 0) {
-      console.error('Empty response from workflow API');
-      return res.status(500).json({
-        error: 'Empty response from workflow API',
-        status: wfResp.status
-      });
-    }
-
-    let wfData;
     try {
-      wfData = JSON.parse(responseText);
-    } catch (e) {
-      console.error('Failed to parse workflow response:', e.message);
-      console.error('Response text:', responseText);
-      return res.status(500).json({ 
-        error: 'Invalid JSON response from workflow API',
-        parseError: e.message,
-        status: wfResp.status,
-        contentType: contentType,
-        rawResponse: responseText.substring(0, 1000),
-        responseLength: responseText.length
+      const wfData = await apiClient.workflows.runs.create({
+        workflow_id: workflowId,
+        parameters: {
+          file: JSON.stringify({ file_id: resumeFileId }),
+          jd: JSON.stringify({ file_id: jdFileId }),
+          content: content || '生成简历与 JD 的匹配度分析报告'
+        }
       });
-    }
-    
-    if (!wfResp.ok || wfData?.code !== 0) {
-      console.error('Workflow API error:', {
-        status: wfResp.status,
-        code: wfData?.code,
-        msg: wfData?.msg,
-        debug_url: wfData?.debug_url,
-        fullResponse: wfData
-      });
-      return res.status(wfResp.status || 500).json({ 
-        error: wfData?.msg || 'Workflow call failed',
-        code: wfData?.code,
-        debug_url: wfData?.debug_url,
-        fullResponse: wfData
-      });
-    }
 
-    const output = wfData?.data?.output_text || wfData?.data?.output || JSON.stringify(wfData?.data || {});
-    console.log('Workflow success, output:', output);
-    return res.status(200).json({ output });
+      console.log('Workflow response:', JSON.stringify(wfData, null, 2));
+      
+      // SDK 返回的 wfData.data 是字符串类型，直接使用
+      const output = typeof wfData?.data === 'string' 
+        ? wfData.data 
+        : (wfData?.data ? JSON.stringify(wfData.data) : '');
+      return res.status(200).json({ output });
+    } catch (err) {
+      console.error('Workflow API error:', err);
+      return res.status(500).json({
+        error: err?.message || 'Workflow call failed',
+        details: err?.response?.data || err
+      });
+    }
   } catch (err) {
     console.error('run-workflow error', err);
     return res.status(500).json({ error: err?.message || 'Internal Server Error' });
