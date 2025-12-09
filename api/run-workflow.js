@@ -101,27 +101,16 @@ module.exports = async function handler(req, res) {
 
       console.log('Workflow response:', JSON.stringify(wfData, null, 2));
       
-      // 检查 workflow 执行是否成功
-      if (wfData?.code === 0 && wfData?.data) {
-        try {
-          // wfData.data 是一个 JSON 字符串，需要解析
-          const parsedData = JSON.parse(wfData.data);
-          // 从解析后的对象中提取 data 字段，这就是实际的分析结果
-          const output = parsedData.data || wfData.data;
-          console.log('Workflow output:', output);
-          return res.status(200).json({ output });
-        } catch (parseErr) {
-          // 如果解析失败，使用原始字符串
-          console.warn('Failed to parse workflow data, using raw string:', parseErr);
-          return res.status(200).json({ output: wfData.data });
-        }
-      } else {
-        // workflow 执行失败
-        console.error('Workflow execution failed:', {
-          code: wfData?.code,
-          msg: wfData?.msg,
-          debug_url: wfData?.debug_url
+      // 立即返回 execute_id，不等待 workflow 完成
+      // 因为 workflow 可能需要很长时间（超过 Vercel 的 60 秒限制）
+      if (wfData?.code === 0) {
+        return res.status(200).json({
+          execute_id: wfData?.execute_id,
+          debug_url: wfData?.debug_url,
+          message: 'Workflow 已启动，正在处理中...',
+          note: '由于处理时间较长，请通过 debug_url 查看进度，或稍后刷新页面查看结果'
         });
+      } else {
         return res.status(500).json({
           error: wfData?.msg || 'Workflow execution failed',
           code: wfData?.code,
