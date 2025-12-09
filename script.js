@@ -136,6 +136,16 @@ if (form && runBtn && loading && result) {
           content: '请生成简历与 JD 的匹配度分析报告'
         })
       });
+      
+      if (!resp.ok) {
+        const errorData = await resp.json().catch(() => ({ error: `HTTP ${resp.status}: ${resp.statusText}` }));
+        result.textContent = `错误: ${errorData.error || errorData.msg || '请求失败'}`;
+        if (errorData.debug_url) {
+          result.textContent += `\n调试链接: ${errorData.debug_url}`;
+        }
+        return;
+      }
+      
       const data = await resp.json();
       result.textContent = data.output || data.error || 'No output.';
     } catch (err) {

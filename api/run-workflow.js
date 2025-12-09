@@ -27,15 +27,29 @@ module.exports = async function handler(req, res) {
 
     const uploadFile = async (base64, filename, mime) => {
       const buffer = Buffer.from(normalizeBase64(base64), 'base64');
-      const formData = new FormData();
-      const blob = new Blob([buffer], { type: mime });
-      formData.append('file', blob, filename || 'upload.bin');
-      formData.append('usage', 'workflow');
+      
+      // 构造 multipart/form-data (Node.js 兼容，不使用浏览器 FormData/Blob)
+      const boundary = '----WebKitFormBoundary' + Math.random().toString(36).substring(2, 15);
+      const parts = [
+        Buffer.from(`--${boundary}\r\n`, 'utf8'),
+        Buffer.from(`Content-Disposition: form-data; name="file"; filename="${filename || 'upload.bin'}"\r\n`, 'utf8'),
+        Buffer.from(`Content-Type: ${mime}\r\n\r\n`, 'utf8'),
+        buffer,
+        Buffer.from(`\r\n--${boundary}\r\n`, 'utf8'),
+        Buffer.from('Content-Disposition: form-data; name="usage"\r\n\r\n', 'utf8'),
+        Buffer.from('workflow', 'utf8'),
+        Buffer.from(`\r\n--${boundary}--\r\n`, 'utf8')
+      ];
+      
+      const body = Buffer.concat(parts);
 
       const resp = await fetch('https://api.coze.cn/v1/files/upload', {
         method: 'POST',
-        headers: { Authorization: `Bearer ${COZE_API_TOKEN}` },
-        body: formData
+        headers: {
+          'Authorization': `Bearer ${COZE_API_TOKEN}`,
+          'Content-Type': `multipart/form-data; boundary=${boundary}`
+        },
+        body: body
       });
       if (!resp.ok) {
         const text = await resp.text();

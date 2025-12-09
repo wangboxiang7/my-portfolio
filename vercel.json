@@ -9,6 +9,9 @@
   ],
   "routes": [
     { "src": "/api/run-workflow", "dest": "/api/run-workflow.js" },
+    { "src": "/script.js", "dest": "/script.js" },
+    { "src": "/styles.css", "dest": "/styles.css" },
+    { "src": "/assets/(.*)", "dest": "/assets/$1" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
