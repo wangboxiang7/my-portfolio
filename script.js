@@ -96,6 +96,15 @@ const runBtn = document.getElementById('run-btn');
 const loading = document.getElementById('loading');
 const result = document.getElementById('result');
 
+async function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 if (form && runBtn && loading && result) {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -106,16 +115,26 @@ if (form && runBtn && loading && result) {
       return;
     }
 
-    const formData = new FormData();
-    formData.append('resume', resumeFile);
-    formData.append('jd', jdFile);
+    const [resumeBase64, jdBase64] = await Promise.all([
+      fileToBase64(resumeFile),
+      fileToBase64(jdFile)
+    ]);
 
     runBtn.disabled = true;
     loading.classList.remove('hidden');
     result.textContent = '运行中，请稍候...';
 
     try {
-      const resp = await fetch('/api/run-workflow', { method: 'POST', body: formData });
+      const resp = await fetch('/api/run-workflow', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          resumeBase64,
+          resumeName: resumeFile.name,
+          jdBase64,
+          jdName: jdFile.name
+        })
+      });
       const data = await resp.json();
       result.textContent = data.output || 'No output.';
     } catch (err) {
